@@ -2,6 +2,7 @@ package com.cts.coabcm.dao;
 
 import java.util.List;
 
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -16,7 +17,12 @@ public class DeviceDaoImpl implements DeviceDao{
 
 	
 	public Device findByDeviceId(String deviceId) {
-		return (Device) sessionFactory.getCurrentSession().get(Device.class, deviceId);
+		Query query = sessionFactory.getCurrentSession().createQuery("from Device where deviceId='"+deviceId+"'");
+		if(query.list().isEmpty()){
+			return null;
+		}
+		List<Device> result = query.list();
+		return result.get(0);
 	}
 
 	

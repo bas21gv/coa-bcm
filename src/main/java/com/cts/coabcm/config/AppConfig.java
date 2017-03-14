@@ -19,6 +19,8 @@ import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.cts.coabcm.bean.FCMValue;
+
 @Configuration
 @EnableTransactionManagement
 @PropertySource(value={"classpath:application.properties"})
@@ -32,7 +34,11 @@ public class AppConfig {
  
     private static final String PROPERTY_NAME_HIBERNATE_DIALECT = "hibernate.dialect";
     private static final String PROPERTY_NAME_HIBERNATE_SHOW_SQL = "hibernate.show_sql";
-    private static final String PROPERTY_NAME_HIBERNATE_HBM2DDL = "hibernate.hbm2ddl.auto";    
+    private static final String PROPERTY_NAME_HIBERNATE_HBM2DDL = "hibernate.hbm2ddl.auto";
+    
+    private static final String PROPERTY_NAME_FCM_URL = "fcm.url";
+	private static final String PROPERTY_NAME_FCM_APIKEY = "fcm.apikey";
+	
     
     @Autowired
     private Environment env;
@@ -84,6 +90,14 @@ public class AppConfig {
         properties.put(PROPERTY_NAME_HIBERNATE_SHOW_SQL, env.getRequiredProperty(PROPERTY_NAME_HIBERNATE_SHOW_SQL));
         properties.put(PROPERTY_NAME_HIBERNATE_HBM2DDL, env.getRequiredProperty(PROPERTY_NAME_HIBERNATE_HBM2DDL));
         return properties;
+    }
+    
+    @Bean
+    public FCMValue getFCMValue(){
+    	FCMValue fcmValue = new FCMValue();
+    	fcmValue.setUrl(env.getRequiredProperty(PROPERTY_NAME_FCM_URL));
+    	fcmValue.setApiKey(env.getRequiredProperty(PROPERTY_NAME_FCM_APIKEY));
+    	return fcmValue;
     }
  
 }

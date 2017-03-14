@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.json.JSONArray;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.cts.coabcm.bean.DeviceValue;
+import com.cts.coabcm.bean.FCMValue;
 import com.cts.coabcm.model.Device;
 import com.cts.coabcm.model.Notification;
 import com.cts.coabcm.service.NotificationService;
@@ -38,9 +40,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class NotificationController extends CorsController{
 	
 	private static final Logger log = LoggerFactory.getLogger(NotificationController.class);
-	
-	private static final String PROPERTY_NAME_FCM_URL = "https://fcm.googleapis.com/fcm/send";
-	private static final String PROPERTY_NAME_FCM_APIKEY = "AAAAm4h49Ik:APA91bFkPRonX5D1oWm96x2xurZFgMWBlWjytoOniQBfQOQzVsDjd4jTwqAnBaLul_YENFcqabJ59mTnBPEyU0Yr8Dt1pajVMGfhgxS1X__Ze9KvLZK7VnZHfT6H04KOdDIhTJzucxDO";
+
+	@Autowired
+	FCMValue fcmValue;
 	
 	@Autowired
 	NotificationService notificationService;
@@ -72,14 +74,14 @@ public class NotificationController extends CorsController{
 		try {
 			fromClient = mapper.readValue(notifyMsg, DeviceValue.class);
 		
-		log.info("Google Cloud Messaging ::: FCM URL ::: " + PROPERTY_NAME_FCM_URL);
-		log.info("Google Cloud Messaging ::: FCM API KEY ::: " + PROPERTY_NAME_FCM_APIKEY);
+		log.info("Google Cloud Messaging ::: FCM URL ::: " + fcmValue.getUrl());
+		log.info("Google Cloud Messaging ::: FCM API KEY ::: " + fcmValue.getApiKey());
 
 		RestTemplate restTemplate = new RestTemplate();
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.add("Authorization", "key=" +PROPERTY_NAME_FCM_APIKEY);
+		headers.add("Authorization", "key=" +fcmValue.getApiKey());
 		
 		dataJson.put("title", fromClient.getNotification().getTopic());
 		dataJson.put("description", fromClient.getNotification().getDescription());
@@ -107,7 +109,7 @@ public class NotificationController extends CorsController{
 			HttpEntity<String> entity = new HttpEntity<String>(requestJson.toString(), headers);
 			log.info("Json to send FCM ::: " + entity.getBody());
 
-			response = restTemplate.exchange(new URI(PROPERTY_NAME_FCM_URL), HttpMethod.POST, entity,
+			response = restTemplate.exchange(new URI(fcmValue.getUrl()), HttpMethod.POST, entity,
 						Object.class);
 
 			log.info("Json received from FCM ::: " + response.getBody());
